@@ -44,5 +44,14 @@ What Makes ZooKeeper a good solution?
   - Znodes can have children znodes (like a directory)
  
 - Znode Types:
-  - Persistent - persists between sessions
-  - Ephemeral - is deleted when the session ends.
+  - Persistent - persists between sessions. Persistent Znode stays within zookeeper until it is explicitly deleted. Using Persistent Znode       we can store data in between sessions.
+  - Ephemeral - is deleted when the session ends. This node deleted automatically as soon as its creator process disconnects from Zookeper.
+    Using Ephemeral znode, we can detect that a process died or disconnected from the Zookeeper service.
+
+How to implement a simple leader election using Apache Zookeeper?
+- Each node in the cluster will try to create a znode with the lowest sequence number available as the znode's name.
+- When a node detects that its znode has the lowest sequence number, it becomes the leader.
+- When a node detects that its znode doesn't have the lowest sequence number, it becomes the follower.
+- Zookeeper gurantees a monotonically increasing, unique sequence number for each node that requests a sequence siffixed znode.
+
+
