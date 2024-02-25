@@ -54,4 +54,13 @@ How to implement a simple leader election using Apache Zookeeper?
 - When a node detects that its znode doesn't have the lowest sequence number, it becomes the follower.
 - Zookeeper gurantees a monotonically increasing, unique sequence number for each node that requests a sequence siffixed znode.
 
+## Watchers and Triggers:
+-  We can register a watcher when we call the methods like,
+    -  getChildren(.., watcher): get notification when the list of a znode's children changes.
+    -  getData(..): get notified if a znode's data gets modified.
+    -  exists(..): get notified if a znode gets deleted or created.
+ 
+-  The watcher is an object that alllows us to get a notification when a change happens
+
+
 
