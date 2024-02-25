@@ -62,5 +62,20 @@ How to implement a simple leader election using Apache Zookeeper?
  
 -  The watcher is an object that alllows us to get a notification when a change happens
 
+## The Herd Effect
+
+  - A large number of nodes waiting for an event.
+  - When the event happens all nodes get notified and they all wake up.
+  - Even though all nodes wakes up, only one node can "succeed"
+  - It indicates bad design, and can negatively imapct the performance and can completely freeze the cluster.
+
+## Fault Tolerance
+
+  - In order for our system to be fault tolerant
+  - The leader election algorithm needs to be able to recover from the failures
+  - And re-elect a new leader automatically
+(To Make it a Fault Tolerant, we have implemented watchers where each node will watch the previous nodes ephemeral z node and gets notified if that z nodes gets deleted. If the deleted Z node belonged to the leader then the notified node becomes the leader itslef, and if the deleted z node did not belong to the leader then the notified node simply closes the gap.)
+
+
 
 
