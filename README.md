@@ -86,4 +86,31 @@ How to implement a simple leader election using Apache Zookeeper?
   - Horizontal Scaling - can dynamically grow business on demand
 - Having these two "badges of honor" is not a trivial achievement we will try to repeat for every distributed system. 
 
+## SERVICE DISCOVERY
+- When a group of computers start up, the only device they are aware about is themsevles, even if they are all connected to the same network.
+- The formal logical clustering of different nodes within a system necessitates a method for them to discover each other and establish communication channels.
+- A straightforward solution involves static configuration, wherein all node addresses are predetermined and compiled into a single configuration file distributed to all nodes before application launch.
+- This enables inter-node communication based on the specified addresses. However, this approach poses challenges if a node becomes unavailable or changes its address, as other nodes would persist in using outdated information, hindering discovery of the new address.
+- Additionally, expanding the cluster requires regenerating and redistributing the configuration file to all nodes, which can be cumbersome even with automation.
+- These days, lot of companies still manage their clusters in a similar way, with some degree of automation.
+- Everytime a new node is added - one central configuration is updated.
+- An automated configuration management tool like Chef or Puppet, can pick up the configuration and distribute it among the nodes in the cluster.
+- More dynamic but still involves a human to update the configurations.
+
+- Hench the best possible approach is "Fully Automated Service Discovery using Zookeeper"
+  - Establish a permanent Z node called "service registry" to serve as the backbone of the cluster.
+  - Upon joining the cluster, each node adds a sequential Z node under the "service registry" node, containing its own address.
+  - Unlike traditional leader election, these Z nodes are not empty; each node embeds its address within its respective Z node.
+  - For service discovery, a node simply registers a watcher on the "service registry" Z node using the get children method.
+  - When a node needs to communicate with another, it retrieves the address data by calling the get data method on the relevant Z node.
+  - Any changes in the cluster trigger immediate notifications to the nodes via the node children changed event.
+  - This implementation facilitates a fully peer-to-peer architecture, enabling seamless communication between any nodes in the cluster.
+- In this architecture, nodes adapt dynamically to changes such as node departures or new additions, ensuring continuous operation.
+- In a leader-workers architecture, workers operate independently without needing awareness of other nodes, and the leader doesn't register itself in the registry.
+- Workes will register themselves with cluster
+- Only the leader will register for notifications
+- Leader will know about the state of the cluster at all times and distribute the work accordingly
+- If a leader dies, then the new leader will remove itself from the service registry and continue distributing the work
+
+
 
