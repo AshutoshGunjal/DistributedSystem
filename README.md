@@ -76,6 +76,14 @@ How to implement a simple leader election using Apache Zookeeper?
   - And re-elect a new leader automatically
 (To Make it a Fault Tolerant, we have implemented watchers where each node will watch the previous nodes ephemeral z node and gets notified if that z nodes gets deleted. If the deleted Z node belonged to the leader then the notified node becomes the leader itslef, and if the deleted z node did not belong to the leader then the notified node simply closes the gap.)
 
-
+## Summary for Leader Re-election algorithm
+- Implemented popular, useful and important algorithm in ditributed system, called Leader - Reelection
+- Fault Tolerant implementation - any number of nodes can fail, and the cluster stays functional
+- Horizontal Scalable - we can add nodes dynamically
+- No performance bottlenecks due to Herd Effect elimination
+- Fault Tolerance and Horizontal Scalability are very important properties
+  - Fault Tolerance - buiness can run 24*7 with no interruption
+  - Horizontal Scaling - can dynamically grow business on demand
+- Having these two "badges of honor" is not a trivial achievement we will try to repeat for every distributed system. 
 
 
