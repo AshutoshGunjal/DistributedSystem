@@ -1,4 +1,5 @@
 import org.apache.zookeeper.*;
+import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -38,6 +39,13 @@ public class LeaderElection implements Watcher {
                         System.out.println("Disconnected from Zookeeper event");
                         zookeeper.notifyAll();
                     }
+                }
+                break;
+            case NodeDeleted:
+                try {
+                    reelectLeader();
+                } catch (KeeperException e) {
+                } catch (InterruptedException e) {
                 }
         }
     }
@@ -81,24 +89,34 @@ public class LeaderElection implements Watcher {
      * @throws KeeperException      if a ZooKeeper operation fails.
      */
 
-    public void electLeader() throws InterruptedException, KeeperException {
-        List<String> children = zookeeper.getChildren(ELECTION_NAMESPACE, false);
+    public void reelectLeader() throws InterruptedException, KeeperException {
+        Stat predecessorStat = null;
+        String predeccessorZnodeName = "";
 
-        Collections.sort(children);
-        String smallestChild = children.get(0);
+        while (predecessorStat == null) {
+            List<String> children = zookeeper.getChildren(ELECTION_NAMESPACE, false);
 
-        if (smallestChild.equals(currentZnodeName)) {
-            System.out.println("I am the leader znode");
-            return;
+            Collections.sort(children);
+            String smallestChild = children.get(0);
+
+            if (smallestChild.equals(currentZnodeName)) {
+                System.out.println("I am the leader znode");
+                return;
+            } else {
+                System.out.println("I ma not a leader znode");
+                int predecessorIndex = Collections.binarySearch(children, currentZnodeName) - 1;
+                predeccessorZnodeName = children.get(predecessorIndex);
+                predecessorStat = zookeeper.exists(ELECTION_NAMESPACE + "/" + predeccessorZnodeName, this);
+            }
         }
-        System.out.println("I ma not a leader znode, " + smallestChild + " is the leader");
+        System.out.println("Watching znode " + predeccessorZnodeName);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         LeaderElection leaderElection = new LeaderElection();
         leaderElection.connectToZookeeper();
         leaderElection.volunteerForLeadership();
-        leaderElection.electLeader();
+        leaderElection.reelectLeader();
         leaderElection.run();
         leaderElection.close();
         System.out.println("Disconnected from Zookeeper, exiting the application");
